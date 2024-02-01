@@ -12,5 +12,7 @@ node_modules/
 .idea/
 
 # Env
-.env
-.env.prod
+.env*
+
+# Logs
+*.log
