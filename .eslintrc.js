@@ -32,6 +32,7 @@ module.exports = {
         'object-curly-spacing': ['error', 'always'],
         'valid-jsdoc': 0,
         'operator-linebreak': 0,
+        'no-case-declarations': 0,
         'require-jsdoc': ['warn', {
             'require': {
                 'FunctionDeclaration': true,

@@ -1,28 +1,9 @@
 /**
- * Bot Markdown escaper
- * @param text
- */
-export function escapeMarkdown(text: string): string {
-    /**
-     * Characters to escape
-     */
-    const specialChars: string[] = [
-        '_', '*', '[', ']', '(', ')', '~', '`', '>',
-        '#', '+', '-', '=', '|', '{', '}', '.', '!',
-    ];
-
-    return text
-        .split('')
-        .map((char) => specialChars.includes(char) ? `\\${ char }` : char)
-        .join('');
-}
-
-/**
  * Converter the Ukrainian text to English by same-looking matrix
  * @param text Text to convert
  * @param placeholder Placeholder to use in case if letter has no equivalent
  */
-export function ukrToEngConverter(text: string, placeholder = ''): string {
+export function ukrToEng(text: string, placeholder = ''): string {
     /**
      * Eng chars
      */
