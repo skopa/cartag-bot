@@ -20,7 +20,9 @@ export class ReplayService {
     async getReplaysList(chatId: number, photoUrl: string): Promise<LicencePlateTag[]> {
         const recognition = await this.recognition.recognizePlates(photoUrl);
         const usersIds = await this.licensePlateManager.getUsersIds(recognition);
-        return Promise.all(usersIds.map((info) => this.getUserTag(chatId, info)));
+        const list = await Promise.all(usersIds.map((info) => this.getUserTag(chatId, info)));
+        console.info('Replay content', JSON.stringify({ recognition, usersIds, list }));
+        return list;
     }
 
     private async getUserTag(chatId: number, document: LicensePlateInfo): Promise<LicencePlateTag> {

@@ -92,6 +92,7 @@ export class SubscriptionManagerService {
 
             if (usage && total > used) {
                 transaction.update(documentSnapshot.ref, { recognitions_used: document.recognitions_used + usage });
+                console.info(`Chat (${documentSnapshot.id}) Balance used ${used}/${total}`);
             }
 
             return {

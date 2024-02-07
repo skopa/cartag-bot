@@ -1,5 +1,6 @@
 import { ClientConfigs, Response } from './license-plate-recognition.interfaces';
 import { licensePlateRecognitionConfigs } from './license-plate-recognition.configs';
+import { ukrToEng } from '../../utils';
 
 
 export class LicensePlateRecognitionService {
@@ -22,7 +23,7 @@ export class LicensePlateRecognitionService {
 
         return results
             .filter(({ score, dscore }) => score > threshold && dscore > threshold)
-            .map(({ plate }) => plate.toUpperCase());
+            .map(({ plate }) => ukrToEng(plate));
     }
 
     /**
@@ -35,7 +36,7 @@ export class LicensePlateRecognitionService {
         const candidates: [string, number][] = results
             .map(({ candidates }) => candidates)
             .flat(1)
-            .map(({ score, plate }) => [plate.toUpperCase(), score] as [string, number]);
+            .map(({ score, plate }) => [ukrToEng(plate), score] as [string, number]);
 
         return new Map<string, number>(candidates);
     }

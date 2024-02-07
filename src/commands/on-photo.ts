@@ -29,8 +29,11 @@ export const onPhoto = (bot: Bot) => bot
         const photoUrl = (await ctx.telegram.getFileLink(photo.file_id)).toString();
         console.info('Photo url: ', photoUrl);
 
+        const { advertisement } = ctx.subscription;
+        const ads = advertisement.show ? `\n\n>${italic`${advertisement.text}`.text}` : '';
+
         if (ctx.subscription.used >= ctx.subscription.total) {
-            await ctx.reply(`No recognitions left. All ${ctx.subscription.total} turns were used.`, {
+            await ctx.reply(fmt`No recognitions left. All ${ctx.subscription.total} turns were used.${ads}`, {
                 reply_to_message_id: message.message_id,
             });
             return;
@@ -44,35 +47,44 @@ export const onPhoto = (bot: Bot) => bot
                 .map(({ plate, tag }) => (tag ? fmt`${plate} ${tag}` : fmt`${plate}`).text)
                 .join(', ');
 
-            const { advertisement } = ctx.subscription;
-            const ads = advertisement.show ? `\n\n>${italic`${advertisement.text}`.text}` : '';
-
             await ctx.subscription.use(1);
             await ctx.reply(
-                fmt`${bold`FaFa `}${combinedMentions}${ads}`,
+                fmt`${bold`FaFa: `}${combinedMentions}${ads}`,
                 { reply_to_message_id: ctx.message.message_id },
             );
             break;
 
         default:
-            const candidatePlates = await ctx.recognition.recognizeCandidates(photoUrl);
-            const addedPlates = await ctx.licensePlateManager.getUserLicensePlates(user.id);
-            const toAdd = [...candidatePlates.keys()].filter(((plate) => !addedPlates.has(plate)));
-            console.info('Manage plates adding', JSON.stringify({ candidatePlates, addedPlates, toAdd }));
+            const candidates = await ctx.recognition.recognizeCandidates(photoUrl);
+            const plateInfos = await ctx.licensePlateManager.getUsersIds([...candidates.keys()]);
+
+            const registeredPlates = plateInfos
+                .filter((info) => info.exists)
+                .map(({ plate }) => plate);
+
+            const newPlates = plateInfos
+                .filter((info) => !info.exists)
+                .map(({ plate }) => plate);
+
+            console.info('Adding from photo', JSON.stringify({ candidates, registeredPlates, newPlates }));
 
             ctx.session.action = Commands.ADD;
-            ctx.session.candidates = toAdd;
+            ctx.session.candidates = newPlates;
 
-            const list = toAdd
-                .map((plate) => ({ plate, chance: (candidatePlates.get(plate) || 0) * 100 }))
+            const newPlatesList = newPlates
+                .map((plate) => ({ plate, chance: (candidates.get(plate) || 0) * 100 }))
                 .sort((a, b) => b.chance - a.chance)
-                .map(({ plate, chance }) => plate + ': ' + chance.toFixed(0) + '%')
+                .map(({ plate, chance }) => plate + ': ' + chance.toFixed(2) + '%')
                 .join('\n');
 
-            const escapedText = list.length
-                ? fmt`There are all recognized license plates:\n${list}\nChoose the plates to add.`
-                : fmt`No license plates on photo.`;
+            const registeredPlatesText = registeredPlates.length
+                ? fmt`List of already added:\n${registeredPlates.join('\n')}\n\n`
+                : fmt``;
 
-            await ctx.reply(escapedText, getPlatesMenu(toAdd));
+            const newPlatesText = newPlatesList.length
+                ? fmt`Choose the plates to add from all recognized license plates:\n${newPlatesList}\n\n`
+                : fmt`No license plates to add.`;
+
+            await ctx.reply(fmt`${registeredPlatesText.text}${newPlatesText.text}`, getPlatesMenu(newPlates));
         }
     });
