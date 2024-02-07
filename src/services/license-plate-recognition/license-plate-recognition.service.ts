@@ -17,14 +17,12 @@ export class LicensePlateRecognitionService {
      * @param imageUrl
      * @param threshold
      */
-    public async recognizePlates(imageUrl: string, threshold: number = this.configs.threshold): Promise<Set<string>> {
+    public async recognizePlates(imageUrl: string, threshold: number = this.configs.threshold): Promise<string[]> {
         const { results } = (await this.fetchData(imageUrl));
 
-        const plates = results
+        return results
             .filter(({ score, dscore }) => score > threshold && dscore > threshold)
-            .map(({ plate }) => plate);
-
-        return new Set<string>(plates);
+            .map(({ plate }) => plate.toUpperCase());
     }
 
     /**
@@ -37,7 +35,7 @@ export class LicensePlateRecognitionService {
         const candidates: [string, number][] = results
             .map(({ candidates }) => candidates)
             .flat(1)
-            .map(({ score, plate }) => [plate, score] as [string, number]);
+            .map(({ score, plate }) => [plate.toUpperCase(), score] as [string, number]);
 
         return new Map<string, number>(candidates);
     }

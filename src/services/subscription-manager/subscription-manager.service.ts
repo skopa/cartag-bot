@@ -13,6 +13,11 @@ const FIRESTORE_COLLECTION = 'subscriptions';
 declare type DocumentData = FirebaseFirestore.DocumentSnapshot<FirebaseFirestore.DocumentData>;
 
 /**
+ * Chat type
+ */
+declare type ChatType = 'group' | 'private' | 'supergroup' | 'channel';
+
+/**
  * Subscription manager service
  */
 export class SubscriptionManagerService {
@@ -24,15 +29,15 @@ export class SubscriptionManagerService {
     /**
      * Use chat subscription balance
      */
-    async getSubscription(chatId: number): Promise<Subscription> {
-        const subscription = await this.getSubscriptionDocument(chatId.toString());
+    async getSubscription(chatId: number, chatType: ChatType): Promise<Subscription> {
+        const subscription = await this.getSubscriptionDocument(chatId.toString(), chatType);
         return this.useBalance(subscription, 0);
     }
 
     /**
      * Get group subscription information
      */
-    private async getSubscriptionDocument(chatId: string): Promise<DocumentData> {
+    private async getSubscriptionDocument(chatId: string, chatType: ChatType): Promise<DocumentData> {
         return await this.firestore.runTransaction(async (transaction) => {
             const docSnapshot = await this.firestore
                 .collection(FIRESTORE_COLLECTION)
@@ -40,7 +45,7 @@ export class SubscriptionManagerService {
                 .get();
 
             if (!docSnapshot.exists) {
-                transaction.set(docSnapshot.ref, this.getInitialData());
+                transaction.set(docSnapshot.ref, this.getInitialData(chatType));
                 return await docSnapshot.ref.get();
             } else {
                 const data = docSnapshot.data() as SubscriptionModel;
@@ -89,7 +94,14 @@ export class SubscriptionManagerService {
                 transaction.update(documentSnapshot.ref, { recognitions_used: document.recognitions_used + usage });
             }
 
-            return { used, total, use: (amount) => this.useBalance(subscription, amount) };
+            return {
+                used,
+                total,
+                use: (amount) => this.useBalance(subscription, amount),
+                advertisement: this.getAdvertisement(document.ads_text),
+                show_anonymous_license_plates: document.show_plates_without_user,
+                is_private: document.private,
+            };
         });
     }
 
@@ -100,9 +112,18 @@ export class SubscriptionManagerService {
     private getBalance = (planPerMonth: number | null) => (planPerMonth || this.configs.free_recognitions_per_month);
 
     /**
+     * Get advertisement info
+     * @param ads
+     */
+    private getAdvertisement = (ads: string | false | null): { show: boolean, text: string | null } => ({
+        show: ads !== false,
+        text: ads || this.configs.default_ads_text,
+    });
+
+    /**
      * Get initial document data
      */
-    private getInitialData = (): SubscriptionModel => ({
+    private getInitialData = (type: ChatType): SubscriptionModel => ({
         plan_valid_until: null,
         plan_per_month: null,
         active: true,
@@ -110,6 +131,7 @@ export class SubscriptionManagerService {
         recognitions_reset: admin.firestore.Timestamp.now(),
         recognitions_used: 0,
         show_plates_without_user: true,
+        private: type === 'private',
         lang: 'en',
     });
 }

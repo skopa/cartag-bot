@@ -21,7 +21,6 @@ export interface FirestoreContext extends Context {
  */
 export const firestoreCtx = (): Middleware<FirestoreContext> =>
     async (ctx: Context, next) => {
-        admin.initializeApp();
         Object.defineProperty(ctx, 'firestore', { value: admin.firestore() });
 
         return next();

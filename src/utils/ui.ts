@@ -1,5 +1,5 @@
 import { Markup } from 'telegraf';
-import { Commands } from '../commands/commands';
+import { Commands } from './commands';
 
 /**
  * Get menu with plates to choose

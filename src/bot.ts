@@ -6,28 +6,23 @@ import { ServicesContext, servicesCtx } from './services/middleware';
 
 
 /**
- * Telegram Bot Token
- */
-const TELEGRAM_BOT_TOKEN = defineString('TELEGRAM_BOT_TOKEN');
-
-
-/**
  * Bot context
  */
-declare type BotContext =
+export declare type BotContext =
     Context &
     FirestoreContext &
     SessionContext &
     ServicesContext;
 
 
-export type TelegrafService = Telegraf<BotContext>;
+export type Bot = Telegraf<BotContext>;
 
 /**
  * Plates collection ref
  */
-export const bot = (new Telegraf<BotContext>(TELEGRAM_BOT_TOKEN.value()))
-    .use(firestoreCtx())
-    .use(sessionCtx())
-    .use(servicesCtx());
-
+export const initBot = () => {
+    return (new Telegraf<BotContext>(defineString('TELEGRAM_BOT_TOKEN').value()))
+        .use(firestoreCtx())
+        .use(sessionCtx())
+        .use(servicesCtx());
+};

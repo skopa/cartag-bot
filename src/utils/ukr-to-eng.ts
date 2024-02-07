@@ -29,7 +29,7 @@ export function ukrToEng(text: string, placeholder = ''): string {
     };
 
     return Array
-        .from(text)
+        .from(text.toUpperCase())
         .map((char: string) => regex.test(char) ? char : (mapping[char] || placeholder))
         .map((char: string) => char.trim())
         .join('')

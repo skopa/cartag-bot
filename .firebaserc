@@ -1,5 +1,9 @@
 {
   "projects": {
-    "default": "fafa-bot"
-  }
+    "default": "fafa-bot",
+    "dev": "fafa-bot",
+    "prod": "cartag-bot"
+  },
+  "targets": {},
+  "etags": {}
 }

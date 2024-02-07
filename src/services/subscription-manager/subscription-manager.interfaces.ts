@@ -12,7 +12,7 @@ export interface SubscriptionConfig {
     /**
      * Default advertisement text
      */
-    default_ads_text: string | false,
+    default_ads_text: string | null,
 }
 
 /**
@@ -50,6 +50,11 @@ export interface SubscriptionModel {
     active: boolean,
 
     /**
+     * Indicate that chat is private
+     */
+    private: boolean
+
+    /**
      * Preferred language
      */
     lang: 'ua' | 'en',
@@ -77,4 +82,29 @@ export interface Subscription {
      * @param amount Amount to use
      */
     use: (amount: number) => Promise<Subscription>,
+
+    /**
+     * Show plates without users
+     */
+    show_anonymous_license_plates: boolean;
+
+    /**
+     * Is chat is private
+     */
+    is_private: boolean;
+
+    /**
+     * Advertisement info
+     */
+    advertisement: {
+        /**
+         * Should be shown
+         */
+        show: boolean
+
+        /**
+         * Text to show
+         */
+        text: string | null,
+    };
 }

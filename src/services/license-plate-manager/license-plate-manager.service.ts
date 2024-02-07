@@ -4,7 +4,7 @@ import { LicensePlateCollectionRef, LicensePlateModel, LicensePlateInfo } from '
 /**
  * Subscriptions collection
  */
-const FIRESTORE_COLLECTION = 'subscriptions';
+const FIRESTORE_COLLECTION = 'plates';
 
 
 export class LicensePlateManagerService {
@@ -31,6 +31,11 @@ export class LicensePlateManagerService {
     async getLicensePlateInfo(plate: string): Promise<LicensePlateInfo> {
         const doc = await this.collection.doc(plate).get();
         return { plate, exists: doc.exists, user_id: doc.data()?.user_id || null };
+    }
+
+    async getUsersIds(plates: string[]): Promise<LicensePlateInfo[]> {
+        const docLists = plates.map((plate) => this.getLicensePlateInfo(plate));
+        return await Promise.all(docLists);
     }
 
     async addLicensePlate(userId: number, licensePlate: string) {

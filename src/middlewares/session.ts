@@ -6,13 +6,13 @@ import { FirestoreContext } from './firestore';
 /**
  * Sessions collection
  */
-const FIRESTORE_COLLECTION = 'session';
+const FIRESTORE_COLLECTION = 'sessions';
 
 
 /**
  * Session data
  */
-declare type SessionData = { [key: string]: object | string | number };
+declare type SessionData = { [key: string]: object | string | number | Array<object | string | number> };
 
 /**
  * Context with firestore
