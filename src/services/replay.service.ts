@@ -4,6 +4,9 @@ import { LicensePlateInfo, LicensePlateManagerService } from './license-plate-ma
 import { mention } from 'telegraf/format';
 
 
+/**
+ * License plate with user mention
+ */
 interface LicencePlateTag {
     plate: string;
     tag: string | null;
@@ -17,6 +20,11 @@ export class ReplayService {
         private licensePlateManager: LicensePlateManagerService) {
     }
 
+    /**
+     * Get list of license plates with user tag for chat
+     * @param chatId
+     * @param photoUrl
+     */
     async getReplaysList(chatId: number, photoUrl: string): Promise<LicencePlateTag[]> {
         const recognition = await this.recognition.recognizePlates(photoUrl);
         const usersIds = await this.licensePlateManager.getUsersIds(recognition);
@@ -30,15 +38,15 @@ export class ReplayService {
             return { plate: document.plate, tag: null };
         }
 
-        const user = await this.telegram.getChatMember(chatId, document.user_id).catch(() => null);
+        const member = await this.telegram.getChatMember(chatId, document.user_id).catch(() => null);
 
-        if (!user || !user.user) {
+        if (!member || !member.user) {
             return { plate: document.plate, tag: null };
         }
 
-        const tag = user.user.username
-            ? `@${user.user.username}`
-            : mention(user.user.first_name, user.user.id).text;
+        const tag = member.user.username
+            ? `@${member.user.username}`
+            : mention(member.user.first_name, member.user.id).text;
 
         return { plate: document.plate, tag };
     }
