@@ -99,9 +99,7 @@ export class SubscriptionManagerService {
                 total,
                 use: (amount) => this.useBalance(subscription, amount),
                 advertisement: this.getAdvertisement(document.ads_text),
-                show_anonymous_license_plates: document.show_plates_without_user,
-                is_private: document.private,
-                is_active: document.active,
+                ref: document,
             };
         });
     }

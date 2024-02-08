@@ -1,5 +1,5 @@
 import { Bot } from '../bot';
-import { Commands, getCommandsMenu, getPlatesMenu } from '../utils';
+import { Commands, STATS_CMD, getCommandsMenu, getPlatesMenu } from '../utils';
 
 /**
  * On Defined command reaction
@@ -41,5 +41,20 @@ export const onCommand = (bot: Bot) => bot
         delete ctx.session.action;
         delete ctx.session.context;
         await ctx.reply('Returning back', getCommandsMenu());
-    });
+    })
 
+    // Handle stats command
+    .command(STATS_CMD, async (ctx) => {
+        const subscription = ctx.subscription.ref;
+        const text = [
+            'Bot usage stats and info:',
+            'Status: ' + (subscription.active ? 'On' : 'Off'),
+            'Chat id: ' + ctx.chat?.id,
+            'Used recognitions: ' + subscription.recognitions_used,
+            'Available recognitions: ' + (ctx.subscription.total - ctx.subscription.used),
+            'Subscription active until: ' + (subscription.plan_valid_until?.toDate()?.toString() || 'No'),
+        ];
+
+        console.info('Stats', JSON.stringify(ctx.subscription));
+        await ctx.reply(text.join('\n'));
+    });

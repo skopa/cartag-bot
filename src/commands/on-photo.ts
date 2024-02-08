@@ -32,7 +32,7 @@ export const onPhoto = (bot: Bot) => bot
         const { advertisement } = ctx.subscription;
         const ads = advertisement.show ? `\n\n>${italic`${advertisement.text}`.text}` : '';
 
-        if (!ctx.subscription.is_active) {
+        if (!ctx.subscription.ref.active) {
             console.info(`Bot is deactivated for group: ${ctx.chat.id}`);
             return;
         }
@@ -45,10 +45,10 @@ export const onPhoto = (bot: Bot) => bot
         }
 
         switch (true) {
-        case !ctx.subscription.is_private:
+        case !ctx.subscription.ref.private:
             const replays = await ctx.replays.getReplaysList(message?.chat.id, photoUrl);
             const combinedMentions = replays
-                .filter(({ tag }) => !!tag || ctx.subscription.show_anonymous_license_plates)
+                .filter(({ tag }) => !!tag || ctx.subscription.ref.show_plates_without_user)
                 .map(({ plate, tag }) => (tag ? fmt`${plate} ${tag}` : fmt`${plate}`).text)
                 .join(', ');
 

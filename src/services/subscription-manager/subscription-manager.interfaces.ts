@@ -23,42 +23,34 @@ export interface SubscriptionModel {
      * The start date of the month until which the plan_per_month is valid
      */
     plan_valid_until: null | admin.firestore.Timestamp,
-
     /**
      * Per month balance
      */
     plan_per_month: null | number,
-
     /**
      * Recognitions used balance
      */
     recognitions_used: number,
-
     /**
      * The start date of the month from which recognition_used is valid
      */
     recognitions_reset: admin.firestore.Timestamp,
-
     /**
      * Add the license plates to the message replay of not registered owners
      */
     show_plates_without_user: boolean,
-
     /**
      * Is bot is active for chat
      */
     active: boolean,
-
     /**
      * Indicate that chat is private
      */
     private: boolean
-
     /**
      * Preferred language
      */
     lang: 'ua' | 'en',
-
     /**
      * Advertisement text added to each replay message
      */
@@ -82,22 +74,10 @@ export interface Subscription {
      * @param amount Amount to use
      */
     use: (amount: number) => Promise<Subscription>,
-
     /**
-     * Show plates without users
+     * Reference to subscription model
      */
-    show_anonymous_license_plates: boolean;
-
-    /**
-     * Is chat is private
-     */
-    is_private: boolean;
-
-    /**
-     * Is bot activated for the chat
-     */
-    is_active: boolean;
-
+    ref: SubscriptionModel
     /**
      * Advertisement info
      */
