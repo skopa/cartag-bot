@@ -32,6 +32,11 @@ export const onPhoto = (bot: Bot) => bot
         const { advertisement } = ctx.subscription;
         const ads = advertisement.show ? `\n\n>${italic`${advertisement.text}`.text}` : '';
 
+        if (!ctx.subscription.is_active) {
+            console.info(`Bot is deactivated for group: ${ctx.chat.id}`);
+            return;
+        }
+
         if (ctx.subscription.used >= ctx.subscription.total) {
             await ctx.reply(fmt`No recognitions left. All ${ctx.subscription.total} turns were used.${ads}`, {
                 reply_to_message_id: message.message_id,
@@ -85,6 +90,7 @@ export const onPhoto = (bot: Bot) => bot
                 ? fmt`Choose the plates to add from all recognized license plates:\n${newPlatesList}\n\n`
                 : fmt`No license plates to add.`;
 
+            await ctx.subscription.use(1);
             await ctx.reply(fmt`${registeredPlatesText.text}${newPlatesText.text}`, getPlatesMenu(newPlates));
         }
     });

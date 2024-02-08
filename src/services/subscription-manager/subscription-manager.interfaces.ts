@@ -94,6 +94,11 @@ export interface Subscription {
     is_private: boolean;
 
     /**
+     * Is bot activated for the chat
+     */
+    is_active: boolean;
+
+    /**
      * Advertisement info
      */
     advertisement: {

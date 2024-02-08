@@ -49,10 +49,9 @@ export class SubscriptionManagerService {
                 return await docSnapshot.ref.get();
             } else {
                 const data = docSnapshot.data() as SubscriptionModel;
-                const monthStart = new Date();
+                const nowDate = new Date();
+                const monthStart = new Date(nowDate.getFullYear(), nowDate.getMonth(), 1, 0, 0, 0);
                 const update: Partial<SubscriptionModel> = {};
-                monthStart.setDate(0);
-                monthStart.setHours(0, 0, 0, 0);
 
                 if (data.recognitions_reset.toMillis() < monthStart.getTime()) {
                     update.recognitions_reset = admin.firestore.Timestamp.fromDate(monthStart);
@@ -80,18 +79,18 @@ export class SubscriptionManagerService {
      * Use balance transaction. At this moment model data is checked.
      * The last action to do is check if recognitions left and use one.
      * @param subscription Subscription firebase document data
-     * @param usage Amount of recognitions to use
+     * @param use Amount of recognitions to use
      * @private
      */
-    private async useBalance(subscription: DocumentData, usage = 1): Promise<Subscription> {
+    private async useBalance(subscription: DocumentData, use = 1): Promise<Subscription> {
         return await this.firestore.runTransaction(async (transaction) => {
             const documentSnapshot = await transaction.get(subscription.ref);
             const document: SubscriptionModel = documentSnapshot.data() as SubscriptionModel;
             const total = this.getBalance(document.plan_per_month);
-            const used = document.recognitions_used + usage;
+            const used = document.recognitions_used + use;
 
-            if (usage && total > used) {
-                transaction.update(documentSnapshot.ref, { recognitions_used: document.recognitions_used + usage });
+            if (use && total > used) {
+                transaction.update(documentSnapshot.ref, { recognitions_used: document.recognitions_used + use });
                 console.info(`Chat (${documentSnapshot.id}) Balance used ${used}/${total}`);
             }
 
@@ -102,6 +101,7 @@ export class SubscriptionManagerService {
                 advertisement: this.getAdvertisement(document.ads_text),
                 show_anonymous_license_plates: document.show_plates_without_user,
                 is_private: document.private,
+                is_active: document.active,
             };
         });
     }
